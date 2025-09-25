@@ -36,7 +36,7 @@
     "verify": "strapi-plugin verify",
     "watch": "strapi-plugin watch",
     "watch:link": "strapi-plugin watch:link",
-    "preprepare": "husky install"
+    "prepare": "husky install"
   },
   "dependencies": {
     "@mux/ts": "^15.5.0",
