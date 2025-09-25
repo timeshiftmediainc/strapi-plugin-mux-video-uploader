@@ -30,7 +30,7 @@
     "verify": "strapi-plugin verify",
     "watch": "strapi-plugin watch",
     "watch:link": "strapi-plugin watch:link",
-    "preprepare": "husky install"
+    "prepare": "husky install"
   },
   "dependencies": {
     "@mux/mux-node": "^12.8.0",
