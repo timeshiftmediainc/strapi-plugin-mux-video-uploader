@@ -78,3 +78,50 @@ describe('uploads', () => {
     expect(request).not.toHaveProperty('directives');
   });
 });
+
+describe('static renditions', () => {
+  it('defaults to audio-only, 480p and 720p, and never sends the deprecated mp4_support', async () => {
+    await muxService().getDirectUploadUrl({ config: config(), storedTextTracks: [] });
+
+    const [request] = mux.client.video.uploads.create.mock.calls[0];
+    expect(request.new_asset_settings.static_renditions).toEqual([
+      { resolution: 'audio-only' },
+      { resolution: '480p' },
+      { resolution: '720p' },
+    ]);
+    expect(request.new_asset_settings).not.toHaveProperty('mp4_support');
+  });
+
+  it('sends the picked resolutions on an asset created from a URL', async () => {
+    await muxService().createRemoteAsset({
+      config: config({ upload_type: 'url', static_renditions: ['highest'] }),
+      storedTextTracks: [],
+      url: 'https://videos.example/clip.mp4',
+    });
+
+    const [request] = mux.client.video.assets.create.mock.calls[0];
+    expect(request.static_renditions).toEqual([{ resolution: 'highest' }]);
+    expect(request).not.toHaveProperty('mp4_support');
+  });
+
+  it('leaves static_renditions out when none are picked', async () => {
+    await muxService().getDirectUploadUrl({ config: config({ static_renditions: [] }), storedTextTracks: [] });
+    await muxService().createRemoteAsset({
+      config: config({ upload_type: 'url', static_renditions: [] }),
+      storedTextTracks: [],
+      url: 'https://videos.example/clip.mp4',
+    });
+
+    expect(mux.client.video.uploads.create.mock.calls[0][0].new_asset_settings).not.toHaveProperty('static_renditions');
+    expect(mux.client.video.assets.create.mock.calls[0][0]).not.toHaveProperty('static_renditions');
+  });
+
+  it('rejects highest alongside a specific resolution, but allows audio-only with either', () => {
+    expect(UploadConfig.safeParse({ static_renditions: ['highest', '720p'] }).success).toBe(false);
+    expect(UploadConfig.safeParse({ static_renditions: ['720p', '720p'] }).success).toBe(false);
+    expect(UploadConfig.safeParse({ static_renditions: ['1080p'] }).success).toBe(true);
+    expect(UploadConfig.safeParse({ static_renditions: ['audio-only', 'highest'] }).success).toBe(true);
+    expect(UploadConfig.safeParse({ static_renditions: ['audio-only', '1080p', '270p'] }).success).toBe(true);
+    expect(UploadConfig.safeParse({ static_renditions: ['4k'] }).success).toBe(false);
+  });
+});

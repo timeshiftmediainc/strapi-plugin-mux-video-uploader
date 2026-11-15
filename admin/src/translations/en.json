@@ -9,6 +9,10 @@
   "Common.file-label": "File",
   "Common.file-required": "File needs to be selected",
   "Common.signed-label": "Signed Playback URL",
+  "Common.static_renditions-label": "Static renditions (MP4 / M4A downloads)",
+  "Common.static_renditions-hint": "Downloadable files Mux creates alongside the stream. \"Highest\" cannot be combined with a specific resolution, and resolutions above the source are skipped.",
+  "Common.static_renditions_audio_only-label": "Audio only (M4A)",
+  "Common.static_renditions_highest-label": "Highest (up to 4K)",
   "Common.video_quality-label": "Video quality",
   "Common.video_quality_basic-label": "Basic",
   "Common.video_quality_plus-label": "Plus",
@@ -105,6 +109,7 @@
   "ModalNewUpload.formErrors.url": "A valid URL is required",
   "ModalNewUpload.formErrors.file": "A video or audio file is required",
   "ModalNewUpload.formErrors.title": "The title needs 3 to 255 characters",
+  "ModalNewUpload.formErrors.static_renditions": "\"Highest\" cannot be combined with a specific resolution",
 
   "CustomTextTrackForm.closed-captions": "Closed captions",
   "CustomTextTrackForm.new-caption": "New caption/subtitle",
