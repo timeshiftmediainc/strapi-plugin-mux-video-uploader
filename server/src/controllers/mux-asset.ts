@@ -27,9 +27,8 @@ const countAssets = ({ filters, _q }: MuxAssetQuery) =>
 const find = async (ctx: Context) => {
   const query = await getMuxAssetQuery(ctx);
   const { filters, sort, fields, populate, _q } = query;
-  const { start, limit } = getPagination(ctx.query);
+  const { start, limit } = getPagination(ctx);
 
-  // The admin page also sends `order=desc`, which the document service never applied.
   const entities = await strapi
     .documents(ASSET_MODEL)
     .findMany(definedOnly({ filters, sort: sort || 'createdAt', fields, populate, _q, start, limit }));
@@ -40,18 +39,15 @@ const find = async (ctx: Context) => {
   return { items, totalCount };
 };
 
+/** A row's numeric `id`, which the admin page and older clients send. Strapi's `documentId`s start with a letter. */
+const NUMERIC_ID = /^\d+$/;
+
 const findOne = async (ctx: Context) => {
   const { documentId } = ctx.params;
+  const where = NUMERIC_ID.test(String(documentId)) ? { id: documentId } : { documentId };
 
   // Doesn't read the query, so the row comes back without relations.
-  const entity = await strapi.db.query(ASSET_MODEL).findOne({
-    where: { id: documentId },
-  });
-  // @ts-ignore - v5 migration
-  // return await strapi.documents(ASSET_MODEL).findOne({
-  //   documentId,
-  //   filters: ctx.query,
-  // });
+  const entity = await strapi.db.query(ASSET_MODEL).findOne({ where });
 
   return sanitizeMuxAssetOutput(ctx, entity);
 };
